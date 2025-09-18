@@ -2,7 +2,70 @@
 
 A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
 
-## ✨ Technology Stack
+## 🚀 Quick Start
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up the database**:
+   ```bash
+   cp .env.example .env
+   npx prisma generate
+   npx prisma db push
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser** and visit `http://localhost:3000`
+
+## 🌐 Deployment
+
+### Vercel Deployment (Recommended)
+
+1. **Install Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Login to Vercel**:
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy to production**:
+   ```bash
+   npm run deploy
+   # or use the deployment script
+   ./scripts/deploy.sh production
+   ```
+
+4. **Set up environment variables** in your Vercel dashboard:
+   - `DATABASE_URL` - Your production database URL
+   - `NEXTAUTH_SECRET` - Secret key for authentication
+   - `NEXTAUTH_URL` - Your production URL
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Alternative Deployment Options
+- **Railway**: Full-stack deployment with database
+- **Netlify**: Static site with serverless functions
+- **Docker**: Containerized deployment
+- **VPS**: Traditional server deployment
+
+## 📋 Production Checklist
+
+- [ ] Update database from SQLite to PostgreSQL/MySQL
+- [ ] Configure environment variables
+- [ ] Set up error monitoring (Sentry)
+- [ ] Configure analytics (Google Analytics/Plausible)
+- [ ] Set up domain and SSL
+- [ ] Test payment integration
+- [ ] Configure backup strategy
 
 This scaffold provides a robust foundation built with:
 
