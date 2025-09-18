@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  orders    Order[]
+  reviews   Review[]
+}
+
+model Branch {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  city        String
+  postalCode  String
+  phone       String
+  email       String?
+  latitude    Float?
+  longitude   Float?
+  openingHours String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orders      Order[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  menuItems   MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  categoryId  String
+  isAvailable Boolean  @default(true)
+  isPopular   Boolean  @default(false)
+  spiceLevel  Int?     @default(0) // 0-5 for spice level
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  category    Category @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String?
+  branchId        String
+  status          OrderStatus @default(PENDING)
+  orderType       OrderType
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  deliveryAddress String?
+  subtotal        Float
+  deliveryFee     Float       @default(0)
+  discountAmount  Float       @default(0)
+  totalAmount     Float
+  notes           String?
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   String?
+  estimatedTime   Int?         // in minutes
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  user            User?       @relation(fields: [userId], references: [id])
+  branch          Branch      @relation(fields: [branchId], references: [id])
+  orderItems      OrderItem[]
+  promotions      OrderPromotion[]
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  menuItemId  String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  notes       String?
+  spiceLevel  Int?     @default(0)
+  createdAt   DateTime @default(now())
+  
+  order       Order    @relation(fields: [orderId], references: [id])
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model Promotion {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  description   String?
+  type          PromotionType
+  value         Float
+  minOrderAmount Float?
+  maxUsage      Int?
+  usageCount    Int      @default(0)
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  orderPromotions OrderPromotion[]
+}
+
+model OrderPromotion {
+  id          String   @id @default(cuid())
+  orderId     String
+  promotionId String
+  discountAmount Float
+  createdAt   DateTime @default(now())
+  
+  order       Order      @relation(fields: [orderId], references: [id])
+  promotion   Promotion  @relation(fields: [promotionId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  orderId   String?
+  rating    Int      // 1-5 stars
+  comment   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_DELIVERY
+}
